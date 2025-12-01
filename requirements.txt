@@ -1,0 +1,23 @@
+# Data Retrieval
+sodapy
+fastparquet
+
+# Analysis
+pandas
+numpy
+
+# Causal 
+h3
+dowhy
+geopandas
+geopy
+
+# Notebooks
+ipykernel
+jupyter
+
+# Visualization
+matplotlib
+seaborn
+pydeck
+streamlit

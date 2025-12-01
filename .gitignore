@@ -1,0 +1,9 @@
+# Cache
+__pycache__/
+.DS_Store
+
+# Env
+venv/
+
+# Folders
+data/
