@@ -40,13 +40,16 @@ This project analyzes how rain affects crash probability across different locati
 ### Running the App
 
 ```bash
-# Activate virtual environment
+cd CausalAccidents
+
+# Create & activate virtual environment
+python -m venv venv
 source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Start the app (if you already have the data/ folder)
+# Start the app
 streamlit run src/app.py
 ```
 
