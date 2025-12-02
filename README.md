@@ -47,9 +47,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Start the app (if you already have the data/ folder)
-
-cd src/
-streamlit run app.py
+streamlit run src/app.py
 ```
 
 The app will open at `http://localhost:8501`
