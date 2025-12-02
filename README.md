@@ -9,10 +9,7 @@ An interactive Streamlit dashboard visualizing heterogeneous treatment effects o
 ---
 
 > ## <p style="text-align: center;">YouTube Demo:</p>
->
-><div style="text-align: center;">
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/t0mIsWsuVY0/0.jpg)](http://www.youtube.com/watch?v=t0mIsWsuVY0)
-</div>
+> [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/t0mIsWsuVY0/0.jpg)](http://www.youtube.com/watch?v=t0mIsWsuVY0)
 
 ## 🎯 Overview
 
