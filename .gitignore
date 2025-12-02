@@ -6,4 +6,8 @@ __pycache__/
 venv/
 
 # Folders
-data/
+data/*
+
+# Undo for deploying
+!data/cate_by_h3_cells.csv
+!data/top_20_geocoded.csv
