@@ -92,8 +92,6 @@ The dashboard has **two main views** accessible via sidebar:
 - Key metrics and percentiles
 - Methodology notes
 
-**Screenshot Placeholder:** *[ADD SCREENSHOT HERE: Analysis view showing the 4 charts side-by-side]*
-
 ---
 
 ## 📁 Project Structure
