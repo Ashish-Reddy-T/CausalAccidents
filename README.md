@@ -11,6 +11,8 @@ An interactive Streamlit dashboard visualizing heterogeneous treatment effects o
 > ## <p style="text-align: center;">YouTube Demo:</p>
 > [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/t0mIsWsuVY0/0.jpg)](http://www.youtube.com/watch?v=t0mIsWsuVY0)
 
+### <p style="text-align: center;">__Run it live__: https://causalaccidents.streamlit.app/</p>
+
 ## 🎯 Overview
 
 This project analyzes how rain affects crash probability across different locations in NYC using:
