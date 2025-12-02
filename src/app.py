@@ -262,9 +262,9 @@ if view_mode == "🗺️ Map":
 
     with right:
         st.subheader("📊 Key Stats")
-        st.metric("Mean CATE (rain effect)", f"{df['cate_mean'].mean():.4f} (~0.1 pp)")
+        st.metric("Mean CATE (rain effect)", f"{df['cate_mean'].mean():.4f} (~0.10 pp)")
         st.metric("Std of CATE", f"{df['cate_mean'].std():.4f}")
-        st.metric("Top cell CATE", f"{df['cate_mean'].max():.3f} (~1.1 pp)")
+        st.metric("Top cell CATE", f"{df['cate_mean'].max():.4f} (~1.38 pp)")
         st.caption(
             "📈 CATE values from T‑learner trained on 1M stratified sample."
         )
@@ -320,7 +320,7 @@ elif view_mode == "📈 Analysis & Charts":
         
         ax.set_xlabel('CATE (Crash Risk Increase During Rain)', fontsize=11, fontweight='bold')
         ax.set_ylabel('Number of H3 Cells', fontsize=11, fontweight='bold')
-        ax.set_title(f'Heterogeneity: Rain Effect Varies 11x Across NYC', fontsize=13, fontweight='bold')
+        ax.set_title(f'Heterogeneity: Rain Effect Varies 13.6x Across NYC', fontsize=13, fontweight='bold')
         ax.legend(loc='upper right', fontsize=9)
         ax.grid(True, alpha=0.3, linestyle='--')
         plt.tight_layout()

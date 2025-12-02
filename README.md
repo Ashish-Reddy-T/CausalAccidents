@@ -16,9 +16,9 @@ This project analyzes how rain affects crash probability across different locati
 - **Interactive Visualization**: Flat Mercator map showing "kill zones" over NYC streets
 
 ### Key Findings
-- Rain increases crash probability by **0.1pp on average**
-- Effect varies **11x across locations** (max 1.1pp in most vulnerable zones)
-- High-traffic zones show **3x stronger rain sensitivity**
+- Rain increases crash probability by **0.10pp on average** (0.1013%)
+- Effect varies **13.6x across locations** (max 1.38pp in most vulnerable zones)
+- High-traffic zones show **3x stronger rain sensitivity** (18x higher traffic than average)
 - Top vulnerable cell: `882a100d69fffff` (**885 Lexington Avenue, Upper East Side**)
 
 ---
@@ -27,7 +27,6 @@ This project analyzes how rain affects crash probability across different locati
 
 ### Prerequisites
 - Python 3.12+
-- Virtual environment with dependencies installed (see `requirements.txt`)
 
 ### Running the App
 
@@ -39,7 +38,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Start the app (if you already have the data/ folder)
-streamlit run src/app.py
+
+cd src/
+streamlit run app.py
 ```
 
 The app will open at `http://localhost:8501`
@@ -51,6 +52,9 @@ The app will open at `http://localhost:8501`
 The dashboard has **two main views** accessible via sidebar:
 
 ### 🗺️ **Map View** (Default)
+
+![Alt text](assets/img1.jpg)
+
 **Interactive NYC map with all 1,135 H3 hexagons**
 
 - **Clean Visualization**: All hexagons display with black borders over a street map
@@ -58,13 +62,14 @@ The dashboard has **two main views** accessible via sidebar:
 - **Google Maps-like Controls**: Flat Mercator projection, scroll to zoom, drag to pan
 - **Hover Tooltips**: See CATE, traffic, baseline risk, and crash count for any cell
 - **Top 5 Quick Reference**: Geocoded addresses for the 5 most vulnerable zones
-  - Example: #1 - 885 Lexington Ave (CATE: 1.104%)
-
-**Screenshot Placeholder:** *[ADD SCREENSHOT HERE: Map view showing NYC with black hexagon borders and gray-filled top zones]*
+  - Example: #1 - 885 Lexington Ave (CATE: 1.378%)
 
 ---
 
 ### 📈 **Analysis & Charts View**
+
+![Alt text](assets/img2.jpg)
+
 **Comprehensive visual analytics with 4 key charts**
 
 #### 1. **Risk Distribution Histogram**
@@ -80,7 +85,7 @@ The dashboard has **two main views** accessible via sidebar:
 #### 3. **Top 20 Kill Zones Table**
 - Detailed breakdown with geocoded addresses
 - Ranks, CATE values, traffic, baseline risk
-- Shows multiplier vs. average (e.g., 11.1x)
+- Shows multiplier vs. average (e.g., 13.6x for top cell)
 
 #### 4. **Summary Statistics Dashboard**
 - Three-panel overview: Targeting, Geography, Impact
@@ -88,14 +93,6 @@ The dashboard has **two main views** accessible via sidebar:
 - Methodology notes
 
 **Screenshot Placeholder:** *[ADD SCREENSHOT HERE: Analysis view showing the 4 charts side-by-side]*
-
----
-
-### ✅ **Completed Enhancements**
-- ✅ Geocoded top 20 H3 cells to street addresses
-- ✅ Flat Mercator projection (no 3D rotation)
-- ✅ Black border visualization for clean, professional look
-- ✅ Comprehensive analysis charts with explanations
 
 ---
 
@@ -138,27 +135,53 @@ CausalAccidents/
 ## 🔧 Technical Details
 
 ### Data Pipeline
-1. **Data Cleaning** (`01_data_cleaning.ipynb`)
-   - NYPD Motor Vehicle Collisions (2022-2025)
-   - Filter to valid lat/lon, derive time features
+1. **Crash Data Cleaning** (`01_data_cleaning.ipynb`)
+   - NYPD Motor Vehicle Collisions (2022-01-01 to 2025-10-31)
+   - Parse timestamps, filter invalid lat/lon and geographic outliers
+   - Extract time features: day_of_week, is_weekend, month, is_rush_hour
+   - Output: `crashes_cleaned.csv` (~92% retention rate)
 
-2. **H3 Indexing** (`02_h3_panel_construction.ipynb`)
-   - Aggregate crashes to H3 resolution 8 (~600m hexagons)
-   - Create panel dataset: (h3_cell, date, hour)
+2. **Weather Data** (`03_weather.ipynb`)
+   - Open-Meteo Historical Weather API (NYC coordinates)
+   - Hourly precipitation and visibility data
+   - Binary rain flag: `rain_flag = (precipitation > 0.1mm)`
+   - Output: `nyc_weather_hourly.csv` (~33k hours, 8% rain prevalence)
 
-3. **Weather Integration** (`03_weather.ipynb`)
-   - Hourly precipitation data from Open-Meteo
-   - Binary rain flag (precip > threshold)
+3. **Traffic Data** (`04.5_TLC_data_cleaning.ipynb`)
+   - NYC TLC Trip Record Data (Yellow taxi pickups)
+   - Polyfill taxi zones to H3 cells with distributed allocation
+   - DuckDB optimization for 46 months of parquet files
+   - Output: `traffic_h3_2022_2025_polyfill.parquet` (~1,500 cells)
 
-4. **Causal Analysis** (`04-05_causal_*.ipynb`)
-   - DoWhy framework for causal inference
-   - Propensity score matching
-   - Traffic volume controls
+4. **Initial H3 Panel** (`02_a_h3_construction.ipynb`)
+   - Apply H3 resolution 8 indexing to crashes (~600m hexagons)
+   - Aggregate to (h3_cell, date, hour) with crash counts
+   - Dense panel: cells with ≥1 historical crash
+   - Output: `h3_panel_res8.csv` (~1,500 unique cells)
 
-5. **Heterogeneous Effects** (`06_heterogeneous_effects.ipynb`)
-   - T-Learner with GradientBoostingRegressor
-   - Stratified sampling (1M observations, 50% rain/no rain)
-   - Output: `data/cate_by_h3_cells.csv`
+5. **Full Panel Construction** (`02_b_h3_full_construction.ipynb`)
+   - Cartesian product: H3_cells × Dates × Hours (avoid selection bias)
+   - Merge crash counts (fill zeros), weather, and compute Baseline_Risk
+   - Rolling 30-hour average crash rate per cell (lag-adjusted)
+   - Output: `h3_full_panel_res8.csv` (~40M observations)
+
+6. **Causal Inference - Initial ATE** (`04_causal.ipynb`)
+   - DoWhy framework with backdoor adjustment
+   - Propensity score weighting for average treatment effect
+   - Confounders: time features, Baseline_Risk, Traffic_Proxy
+   - Result: ATE ≈ 0.091pp, robustness checks passed
+
+7. **Causal Validation - Real Traffic** (`05_causal_validation.ipynb`)
+   - Replace Traffic_Proxy with actual TLC traffic_count
+   - Re-estimate ATE with real exposure data
+   - Result: ATE ≈ 0.095pp (validates initial estimate)
+
+8. **Heterogeneous Effects** (`06_CATE.ipynb`)
+   - T-Learner with GradientBoostingRegressor (100 trees, depth=5)
+   - Stratified sampling: 1M observations (500k rain / 500k no-rain)
+   - Features: log_traffic, Baseline_Risk, temporal covariates
+   - Training time: ~56 seconds, spatial aggregation to 1,135 cells
+   - Output: `cate_by_h3_cells.csv` (mean, median, std per cell)
 
 ### Model Details
 - **Algorithm**: T-Learner (two separate models for treatment/control)
@@ -175,33 +198,17 @@ From `HETEROGENEITY_RESULTS.md`:
 
 | Metric | Value |
 |--------|-------|
-| **Mean CATE** | 0.000990 (0.099pp) |
-| **Std CATE** | 0.000739 |
-| **Max CATE** | 0.011039 (1.1pp) |
+| **Mean CATE** | 0.001013 (0.10pp) |
+| **Std CATE** | 0.000732 |
+| **Max CATE** | 0.013775 (1.38pp) |
 | **Total H3 Cells** | 1,135 |
-| **High-traffic effect** | 0.21pp (3x average) |
+| **High-traffic effect** | 0.19pp (~3x average) |
 | **Low-traffic effect** | 0.07pp |
 
 ### Recommendations
 1. **Target high-CATE zones** (top 10%) with 2x surge pricing + safety alerts
-2. **Sunday rain events**: Pre-position drivers, proactive warnings (2.4x higher risk)
+2. **Sunday rain events**: Pre-position drivers, proactive warnings (1.6x higher risk)
 3. **Low-CATE zones**: Standard operations (maintain competitiveness)
-
----
-
-## 🔬 Testing
-
-Run the test suite:
-```bash
-python test_app.py
-```
-
-Tests verify:
-- ✓ Data file exists and loads correctly
-- ✓ Column names match expected schema
-- ✓ H3 to lat/lng conversion works
-- ✓ CATE statistics are reasonable
-- ✓ All dependencies are installed
 
 ---
 
