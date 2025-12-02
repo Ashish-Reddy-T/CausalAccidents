@@ -15,6 +15,10 @@ This project analyzes how rain affects crash probability across different locati
 - **Causal Inference**: T-Learner with Gradient Boosting to estimate Conditional Average Treatment Effects (CATE)
 - **Interactive Visualization**: Flat Mercator map showing "kill zones" over NYC streets
 
+> **For detailed information:**  
+> - **Complete pipeline documentation** → [`documents/PIPELINE.md`](documents/PIPELINE.md)  
+> - **Full analysis results & business insights** → [`documents/HETEROGENEITY_RESULTS.md`](documents/HETEROGENEITY_RESULTS.md)
+
 ### Key Findings
 - Rain increases crash probability by **0.10pp on average** (0.1013%)
 - Effect varies **13.6x across locations** (max 1.38pp in most vulnerable zones)
@@ -106,8 +110,8 @@ CausalAccidents/
 │   └── ...                             # Other pipeline outputs
 │
 ├── documents/
-│   ├── HETEROGENEITY_RESULTS.md        # Analysis results summary
-│   └── PIPELINE_SUMMARY.md             # Full pipeline documentation
+│   ├── HETEROGENEITY_RESULTS.md        # Analysis results (must read)
+│   └── PIPELINE_SUMMARY.md             # Full pipeline documentation (must read)
 │
 ├── notebooks/
 │   ├── 01_data_cleaning.ipynb          # Data cleaning and Feature Engineering (Collisions Data)
