@@ -15,7 +15,7 @@ st.set_page_config(
     layout="wide",
 )
 
-DATA_PATH = "../data/cate_by_h3_cells.csv"
+DATA_PATH = "data/cate_by_h3_cells.csv"
 NYC_CENTER = (40.7128, -74.0060)
 
 # Tunable visual thresholds
@@ -40,7 +40,7 @@ def load_cate_by_cell(path: str) -> pd.DataFrame:
 @st.cache_data
 def load_geocoded_data():
     """Load geocoded addresses for top cells"""
-    geocoded_path = "../data/top_20_geocoded.csv"
+    geocoded_path = "data/top_20_geocoded.csv"
     try:
         geocoded_df = pd.read_csv(geocoded_path)
         # Create a dictionary mapping h3_index to address
